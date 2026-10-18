@@ -57,3 +57,13 @@ export type Application = {
 export type SitePageProps = {
     announcements: Announcement[];
 };
+
+export type AdminStats = {
+    notices: number;
+    scholarships: number;
+    announcements: number;
+    activeAnnouncements: number;
+    photos: number;
+    results: number;
+    applications: number;
+};

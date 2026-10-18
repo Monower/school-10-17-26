@@ -1,18 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { X } from 'lucide-react';
+import { Images, X } from 'lucide-react';
 import { useState } from 'react';
-import achievers from '@/assets/sunshine-achievers.jpg';
-import classroom from '@/assets/sunshine-classroom.jpg';
-import science from '@/assets/sunshine-science.jpg';
 import { PageHeader } from '@/components/site/page-header';
+import { Bilingual } from '@/lib/language';
 import type { GalleryPhoto } from '@/types';
 
-const fallbackPhotos = [classroom, achievers, science];
-
 export default function GalleryPage({ photos }: { photos: GalleryPhoto[] }) {
-    const sources = photos.length
-        ? photos.map((photo) => photo.url)
-        : fallbackPhotos;
     const [open, setOpen] = useState<string | null>(null);
 
     return (
@@ -27,23 +20,43 @@ export default function GalleryPage({ photos }: { photos: GalleryPhoto[] }) {
                 introBn="আমাদের ক্যাম্পাসের ক্লাস, অনুষ্ঠান ও উদযাপনের মুহূর্ত।"
             />
             <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                    {sources.map((src, index) => (
-                        <button
-                            key={`${src}-${index}`}
-                            type="button"
-                            onClick={() => setOpen(src)}
-                            className="overflow-hidden rounded-md border border-border"
-                        >
-                            <img
-                                src={src}
-                                alt={`Gallery photo ${index + 1}`}
-                                loading="lazy"
-                                className="aspect-square w-full object-cover transition hover:scale-105"
+                {photos.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border bg-muted/40 px-6 py-16 text-center">
+                        <Images className="mx-auto size-10 text-muted-foreground" />
+                        <p className="mt-3 font-semibold text-muted-foreground">
+                            <Bilingual
+                                en="No photos published yet."
+                                bn="এখনও কোনো ছবি প্রকাশিত হয়নি।"
                             />
-                        </button>
-                    ))}
-                </div>
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                        {photos.map((photo) => (
+                            <button
+                                key={photo.id}
+                                type="button"
+                                onClick={() => setOpen(photo.url)}
+                                className="group relative overflow-hidden rounded-md border border-border"
+                            >
+                                <img
+                                    src={photo.url}
+                                    alt={
+                                        photo.caption ??
+                                        'Sunshine Educare gallery photo'
+                                    }
+                                    loading="lazy"
+                                    className="aspect-square w-full object-cover transition hover:scale-105"
+                                />
+                                {photo.caption && (
+                                    <span className="absolute inset-x-0 bottom-0 truncate bg-primary/85 px-3 py-2 text-left text-xs font-semibold text-primary-foreground">
+                                        {photo.caption}
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </section>
             {open && (
                 <div
@@ -53,6 +66,7 @@ export default function GalleryPage({ photos }: { photos: GalleryPhoto[] }) {
                     <button
                         type="button"
                         aria-label="Close"
+                        onClick={() => setOpen(null)}
                         className="absolute top-4 right-4 rounded-full bg-background p-2"
                     >
                         <X />

@@ -5,6 +5,7 @@ use App\Models\Application;
 use App\Models\GalleryPhoto;
 use App\Models\Notice;
 use App\Models\Result;
+use App\Models\Scholarship;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -148,4 +149,104 @@ test('an admin can delete a submitted application', function () {
         ->assertRedirect();
 
     $this->assertDatabaseCount('applications', 0);
+});
+
+test('an admin can edit a notice', function () {
+    $notice = Notice::factory()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.notices.update', $notice), [
+            'title_en' => 'Updated title',
+            'title_bn' => 'হালনাগাদ শিরোনাম',
+            'body_en' => 'Updated details',
+            'notice_date' => '2026-10-02',
+        ])
+        ->assertRedirect();
+
+    $notice->refresh();
+
+    expect($notice->title_en)->toBe('Updated title')
+        ->and($notice->title_bn)->toBe('হালনাগাদ শিরোনাম')
+        ->and($notice->body_en)->toBe('Updated details');
+});
+
+test('editing a notice still requires both language titles', function () {
+    $notice = Notice::factory()->create(['title_bn' => 'মূল শিরোনাম']);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.notices.update', $notice), [
+            'title_en' => 'Only English',
+            'title_bn' => '',
+            'notice_date' => '2026-10-02',
+        ])
+        ->assertSessionHasErrors('title_bn');
+
+    expect($notice->fresh()->title_en)->not->toBe('Only English');
+});
+
+test('an admin can edit a scholarship', function () {
+    $scholarship = Scholarship::factory()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.scholarships.update', $scholarship), [
+            'title_en' => 'Updated scholarship',
+            'title_bn' => 'হালনাগাদ বৃত্তি',
+            'announce_date' => '2026-10-06',
+        ])
+        ->assertRedirect();
+
+    expect($scholarship->fresh()->title_en)->toBe('Updated scholarship');
+});
+
+test('an admin can rename a result and move it to another class', function () {
+    $result = Result::factory()->create([
+        'title' => 'midterm',
+        'class_name' => 'Class 1',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.results.update', $result), [
+            'title' => 'Half yearly',
+            'class_name' => 'Class 6',
+        ])
+        ->assertRedirect();
+
+    $result->refresh();
+
+    expect($result->title)->toBe('Half yearly')
+        ->and($result->class_name)->toBe('Class 6');
+});
+
+test('an admin can update a gallery photo caption', function () {
+    $photo = GalleryPhoto::factory()->create(['caption' => null]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.gallery.update', $photo), [
+            'caption' => 'Sports day',
+        ])
+        ->assertRedirect();
+
+    expect($photo->fresh()->caption)->toBe('Sports day');
+});
+
+test('an admin can edit an announcement message', function () {
+    $announcement = Announcement::factory()->create([
+        'text_en' => 'Old text',
+        'text_bn' => 'পুরনো বার্তা',
+        'active' => true,
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.announcements.update', $announcement), [
+            'text_en' => 'New text',
+            'text_bn' => 'নতুন বার্তা',
+            'active' => false,
+        ])
+        ->assertRedirect();
+
+    $announcement->refresh();
+
+    expect($announcement->text_en)->toBe('New text')
+        ->and($announcement->text_bn)->toBe('নতুন বার্তা')
+        ->and($announcement->active)->toBeFalse();
 });

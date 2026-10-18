@@ -23,6 +23,20 @@ test('public pages render their inertia component', function (string $routeName,
     ['contacts.kamalpur', 'site/contacts/kamalpur'],
 ]);
 
+test('the home page exposes the latest notices and gallery photos', function () {
+    Notice::factory()->create(['title_en' => 'Home notice']);
+    GalleryPhoto::factory()->create(['file_path' => 'gallery/home.jpg']);
+
+    $this->get(route('home'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('notices', 1)
+            ->where('notices.0.title_en', 'Home notice')
+            ->has('photos', 1)
+            ->has('photos.0.url')
+            ->missing('photos.0.file_path')
+        );
+});
+
 test('the notices page lists the latest notices first', function () {
     Notice::factory()->create(['title_en' => 'Older notice', 'notice_date' => '2026-01-01']);
     Notice::factory()->create(['title_en' => 'Newer notice', 'notice_date' => '2026-09-01']);

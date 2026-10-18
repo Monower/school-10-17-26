@@ -1,22 +1,10 @@
 import { ArrowLeft, ArrowRight, Images, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import achievers from '@/assets/sunshine-achievers.jpg';
-import classroom from '@/assets/sunshine-classroom.jpg';
-import science from '@/assets/sunshine-science.jpg';
 import { Button } from '@/components/ui/button';
 import { Bilingual, useLanguage } from '@/lib/language';
+import type { GalleryPhoto } from '@/types';
 
-const photos = [
-    { image: classroom, en: 'Learning together', bn: 'একসঙ্গে শেখা' },
-    { image: achievers, en: 'Celebrating achievement', bn: 'সাফল্য উদযাপন' },
-    {
-        image: science,
-        en: 'Exploring through science',
-        bn: 'বিজ্ঞানের মাধ্যমে অনুসন্ধান',
-    },
-];
-
-export function PhotoGallery() {
+export function PhotoGallery({ photos }: { photos: GalleryPhoto[] }) {
     const [selected, setSelected] = useState<number | null>(null);
     const { isBangla } = useLanguage();
 
@@ -31,11 +19,14 @@ export function PhotoGallery() {
             }
 
             if (event.key === 'ArrowLeft') {
-                setSelected((selected - 1 + photos.length) % photos.length);
+                setSelected(
+                    (current) =>
+                        ((current ?? 0) - 1 + photos.length) % photos.length,
+                );
             }
 
             if (event.key === 'ArrowRight') {
-                setSelected((selected + 1) % photos.length);
+                setSelected((current) => ((current ?? 0) + 1) % photos.length);
             }
         };
 
@@ -46,7 +37,7 @@ export function PhotoGallery() {
             document.body.style.overflow = '';
             window.removeEventListener('keydown', onKeyDown);
         };
-    }, [selected]);
+    }, [selected, photos.length]);
 
     const photo = selected === null ? undefined : photos[selected];
 
@@ -89,45 +80,67 @@ export function PhotoGallery() {
                             />
                         </p>
                     </div>
-                    <p className="text-sm font-semibold text-muted-foreground">
-                        <Bilingual
-                            en="Select a photo to view"
-                            bn="বড় করে দেখতে ছবি নির্বাচন করুন"
-                        />
-                    </p>
+                    {photos.length > 0 && (
+                        <p className="text-sm font-semibold text-muted-foreground">
+                            <Bilingual
+                                en="Select a photo to view"
+                                bn="বড় করে দেখতে ছবি নির্বাচন করুন"
+                            />
+                        </p>
+                    )}
                 </div>
 
-                <div className="mt-10 grid auto-rows-[230px] gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {photos.map((item, index) => (
-                        <button
-                            key={item.en}
-                            type="button"
-                            onClick={() => setSelected(index)}
-                            className={`group relative overflow-hidden rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${index === 0 ? 'sm:row-span-2 sm:auto-rows-auto' : ''}`}
-                            aria-label={`${isBangla ? item.bn : item.en} — ${isBangla ? 'বড় করে দেখুন' : 'view larger'}`}
-                        >
-                            <img
-                                src={item.image}
-                                alt={isBangla ? item.bn : item.en}
-                                width={1536}
-                                height={864}
-                                loading="lazy"
-                                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                {photos.length === 0 ? (
+                    <div className="mt-10 rounded-lg border border-dashed border-border bg-card px-6 py-16 text-center">
+                        <Images className="mx-auto size-10 text-muted-foreground" />
+                        <p className="mt-3 font-semibold text-muted-foreground">
+                            <Bilingual
+                                en="No photos yet."
+                                bn="এখনও কোনো ছবি নেই।"
                             />
-                            <div className="absolute inset-x-0 bottom-0 bg-primary/85 p-5 text-primary-foreground">
-                                <p className="font-bold">
-                                    {isBangla ? item.bn : item.en}
-                                </p>
-                            </div>
-                        </button>
-                    ))}
-                </div>
-                <p className="mt-4 text-center text-sm text-muted-foreground">
-                    <Bilingual
-                        en="Sample gallery — add your institute’s official photos here."
-                        bn="নমুনা গ্যালারি — এখানে প্রতিষ্ঠানের অফিসিয়াল ছবি যোগ করুন।"
-                    />
-                </p>
+                        </p>
+                    </div>
+                ) : (
+                    <div className="mt-10 grid auto-rows-[230px] gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {photos.map((item, index) => {
+                            const label = item.caption;
+
+                            return (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => setSelected(index)}
+                                    className={`group relative overflow-hidden rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
+                                        index === 0
+                                            ? 'sm:row-span-2 sm:auto-rows-auto'
+                                            : ''
+                                    }`}
+                                    aria-label={
+                                        label ??
+                                        `${isBangla ? 'গ্যালারি ছবি' : 'Gallery photo'} ${index + 1}`
+                                    }
+                                >
+                                    <img
+                                        src={item.url}
+                                        alt={
+                                            label ??
+                                            `Gallery photo ${index + 1}`
+                                        }
+                                        width={1536}
+                                        height={864}
+                                        loading="lazy"
+                                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                    />
+                                    {label && (
+                                        <div className="absolute inset-x-0 bottom-0 bg-primary/85 p-5 text-primary-foreground">
+                                            <p className="font-bold">{label}</p>
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             {photo && selected !== null ? (
@@ -166,15 +179,17 @@ export function PhotoGallery() {
                         onClick={(event) => event.stopPropagation()}
                     >
                         <img
-                            src={photo.image}
-                            alt={isBangla ? photo.bn : photo.en}
+                            src={photo.url}
+                            alt={photo.caption ?? 'Gallery photo'}
                             width={1536}
                             height={864}
                             className="max-h-[78vh] w-auto rounded-md object-contain"
                         />
-                        <figcaption className="mt-3 text-center font-bold text-background">
-                            {isBangla ? photo.bn : photo.en}
-                        </figcaption>
+                        {photo.caption && (
+                            <figcaption className="mt-3 text-center font-bold text-background">
+                                {photo.caption}
+                            </figcaption>
+                        )}
                     </figure>
                     <Button
                         variant="secondary"

@@ -33,22 +33,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
 
-    Route::post('results', [ResultController::class, 'store'])->name('results.store');
-    Route::delete('results/{result}', [ResultController::class, 'destroy'])->name('results.destroy');
+    Route::resource('notices', NoticeController::class)->except(['show', 'create', 'edit']);
+    Route::resource('scholarships', ScholarshipController::class)->except(['show', 'create', 'edit']);
+    Route::resource('announcements', AnnouncementController::class)->except(['show', 'create', 'edit']);
 
-    Route::post('gallery', [GalleryController::class, 'store'])->name('gallery.store');
-    Route::delete('gallery/{photo}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+    Route::resource('gallery', GalleryController::class)
+        ->except(['show', 'create', 'edit'])
+        ->parameters(['gallery' => 'photo']);
 
-    Route::post('notices', [NoticeController::class, 'store'])->name('notices.store');
-    Route::delete('notices/{notice}', [NoticeController::class, 'destroy'])->name('notices.destroy');
+    Route::resource('results', ResultController::class)->except(['show', 'create', 'edit']);
 
-    Route::post('scholarships', [ScholarshipController::class, 'store'])->name('scholarships.store');
-    Route::delete('scholarships/{scholarship}', [ScholarshipController::class, 'destroy'])->name('scholarships.destroy');
-
-    Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
-    Route::patch('announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
-    Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-
+    Route::get('applications', [ApplicationController::class, 'index'])->name('applications.index');
     Route::delete('applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 });
 

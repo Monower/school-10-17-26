@@ -16,7 +16,18 @@ class PageController extends Controller
      */
     public function home(): Response
     {
-        return Inertia::render('site/home');
+        return Inertia::render('site/home', [
+            'notices' => Notice::query()
+                ->orderByDesc('notice_date')
+                ->orderByDesc('id')
+                ->take(4)
+                ->get(),
+            'photos' => GalleryPhoto::query()
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->take(6)
+                ->get(),
+        ]);
     }
 
     /**

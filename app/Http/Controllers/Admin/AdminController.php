@@ -15,34 +15,29 @@ use Inertia\Response;
 class AdminController extends Controller
 {
     /**
-     * Show the staff admin portal with all managed content.
+     * Show the admin dashboard with content statistics and recent activity.
      */
     public function index(): Response
     {
         return Inertia::render('admin/index', [
-            'results' => Result::query()
+            'stats' => [
+                'notices' => Notice::query()->count(),
+                'scholarships' => Scholarship::query()->count(),
+                'announcements' => Announcement::query()->count(),
+                'activeAnnouncements' => Announcement::query()->where('active', true)->count(),
+                'photos' => GalleryPhoto::query()->count(),
+                'results' => Result::query()->count(),
+                'applications' => Application::query()->count(),
+            ],
+            'recentApplications' => Application::query()
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
+                ->take(5)
                 ->get(),
-            'photos' => GalleryPhoto::query()
-                ->orderByDesc('created_at')
-                ->orderByDesc('id')
-                ->get(),
-            'notices' => Notice::query()
+            'recentNotices' => Notice::query()
                 ->orderByDesc('notice_date')
                 ->orderByDesc('id')
-                ->get(),
-            'scholarships' => Scholarship::query()
-                ->orderByDesc('announce_date')
-                ->orderByDesc('id')
-                ->get(),
-            'announcements' => Announcement::query()
-                ->orderByDesc('created_at')
-                ->orderByDesc('id')
-                ->get(),
-            'applications' => Application::query()
-                ->orderByDesc('created_at')
-                ->orderByDesc('id')
+                ->take(5)
                 ->get(),
         ]);
     }

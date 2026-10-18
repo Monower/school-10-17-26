@@ -24,6 +24,7 @@ import { Bilingual, useLanguage } from '@/lib/language';
 import { about, notice } from '@/routes';
 import { apply, scholarships } from '@/routes/admission';
 import { bhairabBazar, kamalpur } from '@/routes/contacts';
+import type { GalleryPhoto, Notice } from '@/types';
 
 const slides = [
     {
@@ -113,13 +114,13 @@ const admissionCards = [
     },
 ];
 
-const updates = [
-    { day: 18, en: 'Admission information update', bn: 'ভর্তি তথ্য হালনাগাদ' },
-    { day: 15, en: 'Class schedule announcement', bn: 'ক্লাস সময়সূচি ঘোষণা' },
-    { day: 12, en: 'Student guidance session', bn: 'শিক্ষার্থী নির্দেশনা সেশন' },
-];
-
-export function HomePage() {
+export function HomePage({
+    notices,
+    photos,
+}: {
+    notices: Notice[];
+    photos: GalleryPhoto[];
+}) {
     const [slide, setSlide] = useState(0);
     const { isBangla } = useLanguage();
 
@@ -328,42 +329,71 @@ export function HomePage() {
                             />
                         </h2>
                         <div className="mt-8 divide-y divide-border border-y border-border">
-                            {updates.map((update) => (
-                                <Link
-                                    key={update.en}
-                                    href={notice()}
-                                    className="group flex gap-5 py-5"
-                                >
-                                    <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                        <span className="text-lg font-extrabold">
-                                            {update.day}
-                                        </span>
-                                        <span className="text-[10px] uppercase">
-                                            Sep
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span className="text-xs font-bold text-success uppercase">
-                                            <Bilingual
-                                                en="General notice"
-                                                bn="সাধারণ নোটিশ"
-                                            />
-                                        </span>
-                                        <h3 className="mt-1 font-bold group-hover:text-primary">
-                                            <Bilingual
-                                                en={update.en}
-                                                bn={update.bn}
-                                            />
-                                        </h3>
-                                        <p className="mt-1 text-sm text-muted-foreground">
-                                            <Bilingual
-                                                en="Sample notice — official details will be published soon."
-                                                bn="নমুনা নোটিশ — অফিসিয়াল তথ্য শীঘ্রই প্রকাশিত হবে।"
-                                            />
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))}
+                            {notices.length === 0 ? (
+                                <p className="py-8 text-sm text-muted-foreground">
+                                    <Bilingual
+                                        en="No notices published yet."
+                                        bn="এখনও কোনো নোটিশ প্রকাশিত হয়নি।"
+                                    />
+                                </p>
+                            ) : (
+                                notices.map((noticeItem) => {
+                                    const publishedAt = new Date(
+                                        noticeItem.notice_date,
+                                    );
+
+                                    return (
+                                        <Link
+                                            key={noticeItem.id}
+                                            href={notice()}
+                                            className="group flex gap-5 py-5"
+                                        >
+                                            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md bg-primary text-primary-foreground">
+                                                <span className="text-lg font-extrabold">
+                                                    {publishedAt.getDate()}
+                                                </span>
+                                                <span className="text-[10px] uppercase">
+                                                    {publishedAt.toLocaleDateString(
+                                                        'en-GB',
+                                                        { month: 'short' },
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="text-xs font-bold text-success uppercase">
+                                                    <Bilingual
+                                                        en="General notice"
+                                                        bn="সাধারণ নোটিশ"
+                                                    />
+                                                </span>
+                                                <h3 className="mt-1 font-bold group-hover:text-primary">
+                                                    <Bilingual
+                                                        en={noticeItem.title_en}
+                                                        bn={noticeItem.title_bn}
+                                                    />
+                                                </h3>
+                                                {(noticeItem.body_en ||
+                                                    noticeItem.body_bn) && (
+                                                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                                                        <Bilingual
+                                                            en={
+                                                                noticeItem.body_en ??
+                                                                noticeItem.body_bn ??
+                                                                ''
+                                                            }
+                                                            bn={
+                                                                noticeItem.body_bn ??
+                                                                noticeItem.body_en ??
+                                                                ''
+                                                            }
+                                                        />
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
                     <div className="rounded-md bg-primary p-8 text-primary-foreground sm:p-10">
@@ -411,7 +441,7 @@ export function HomePage() {
                 </div>
             </section>
 
-            <PhotoGallery />
+            <PhotoGallery photos={photos} />
         </>
     );
 }
