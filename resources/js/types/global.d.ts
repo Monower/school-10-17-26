@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { Announcement } from '@/types/site';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -11,6 +12,7 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            announcements: Announcement[];
             sidebarOpen: boolean;
             [key: string]: unknown;
         };
