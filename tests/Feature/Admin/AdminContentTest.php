@@ -217,6 +217,28 @@ test('an admin can rename a result and move it to another class', function () {
         ->and($result->class_name)->toBe('Class 6');
 });
 
+test('moving a result to another class moves its stored pdf', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('results/class-1/midterm.pdf', 'pdf content');
+    $result = Result::factory()->create([
+        'title' => 'midterm',
+        'class_name' => 'Class 1',
+        'file_path' => 'results/class-1/midterm.pdf',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.results.update', $result), [
+            'title' => 'Midterm',
+            'class_name' => 'Class 6',
+        ])
+        ->assertRedirect();
+
+    expect($result->fresh()->file_path)->toBe('results/class-6/midterm.pdf');
+
+    Storage::disk('public')->assertMissing('results/class-1/midterm.pdf');
+    Storage::disk('public')->assertExists('results/class-6/midterm.pdf');
+});
+
 test('an admin can update a gallery photo caption', function () {
     $photo = GalleryPhoto::factory()->create(['caption' => null]);
 

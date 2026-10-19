@@ -30,6 +30,8 @@ class GalleryPhoto extends Model
 
     /**
      * Get the public URL of the stored image.
+     *
+     * @return Attribute<string, never>
      */
     protected function url(): Attribute
     {

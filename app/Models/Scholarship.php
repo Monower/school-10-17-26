@@ -23,4 +23,16 @@ class Scholarship extends Model
 {
     /** @use HasFactory<ScholarshipFactory> */
     use HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'announce_date' => 'date:Y-m-d',
+        ];
+    }
 }

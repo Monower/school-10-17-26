@@ -23,4 +23,16 @@ class Notice extends Model
 {
     /** @use HasFactory<NoticeFactory> */
     use HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'notice_date' => 'date:Y-m-d',
+        ];
+    }
 }

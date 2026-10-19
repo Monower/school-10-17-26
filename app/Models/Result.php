@@ -44,6 +44,8 @@ class Result extends Model
 
     /**
      * Get the public URL of the stored PDF.
+     *
+     * @return Attribute<string, never>
      */
     protected function url(): Attribute
     {

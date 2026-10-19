@@ -27,40 +27,52 @@ export default function ScholarshipsPage({
                     <Megaphone className="size-6 text-brand-red" />
                     <Bilingual en="Scholarship announcements" bn="বৃত্তির ঘোষণা" />
                 </h2>
-                <div className="mt-6 space-y-4">
-                    {scholarships.map((scholarship) => (
-                        <article
-                            key={scholarship.id}
-                            className="flex gap-4 rounded-md border border-l-4 border-border border-l-sun bg-card p-5"
-                        >
-                            <Award className="mt-1 size-6 shrink-0 text-primary" />
-                            <div>
-                                <time className="text-xs font-bold text-muted-foreground">
-                                    {scholarship.announce_date}
-                                </time>
-                                <h3 className="mt-1 text-lg font-bold">
-                                    <Bilingual
-                                        en={scholarship.title_en}
-                                        bn={scholarship.title_bn}
-                                    />
-                                </h3>
-                                {(scholarship.body_en ||
-                                    scholarship.body_bn) && (
-                                    <p className="mt-1 text-sm text-muted-foreground">
+                {scholarships.length === 0 ? (
+                    <div className="mt-6 rounded-lg border border-dashed border-border bg-muted/40 px-6 py-16 text-center">
+                        <Award className="mx-auto size-10 text-muted-foreground" />
+                        <p className="mt-3 font-semibold text-muted-foreground">
+                            <Bilingual
+                                en="No scholarship announcements yet."
+                                bn="এখনও কোনো বৃত্তির ঘোষণা নেই।"
+                            />
+                        </p>
+                    </div>
+                ) : (
+                    <div className="mt-6 space-y-4">
+                        {scholarships.map((scholarship) => (
+                            <article
+                                key={scholarship.id}
+                                className="flex gap-4 rounded-md border border-l-4 border-border border-l-sun bg-card p-5"
+                            >
+                                <Award className="mt-1 size-6 shrink-0 text-primary" />
+                                <div>
+                                    <time className="text-xs font-bold text-muted-foreground">
+                                        {scholarship.announce_date}
+                                    </time>
+                                    <h3 className="mt-1 text-lg font-bold">
                                         <Bilingual
-                                            en={scholarship.body_en ?? ''}
-                                            bn={
-                                                scholarship.body_bn ??
-                                                scholarship.body_en ??
-                                                ''
-                                            }
+                                            en={scholarship.title_en}
+                                            bn={scholarship.title_bn}
                                         />
-                                    </p>
-                                )}
-                            </div>
-                        </article>
-                    ))}
-                </div>
+                                    </h3>
+                                    {(scholarship.body_en ||
+                                        scholarship.body_bn) && (
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            <Bilingual
+                                                en={scholarship.body_en ?? ''}
+                                                bn={
+                                                    scholarship.body_bn ??
+                                                    scholarship.body_en ??
+                                                    ''
+                                                }
+                                            />
+                                        </p>
+                                    )}
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
                 <Button asChild className="mt-8">
                     <Link href={apply()}>
                         <Bilingual en="Apply now" bn="এখনই আবেদন করুন" />

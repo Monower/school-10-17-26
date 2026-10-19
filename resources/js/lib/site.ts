@@ -8,6 +8,14 @@ export const BRANCHES = ['Bhairab Bazar Branch', 'Kamalpur Branch'] as const;
 export const GENDERS = ['Male', 'Female'] as const;
 
 export function formatSize(bytes: number): string {
+    if (bytes < 1024) {
+        return `${bytes} B`;
+    }
+
+    if (bytes < 1024 * 1024) {
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 

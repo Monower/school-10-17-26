@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class GalleryController extends Controller
 {
@@ -52,10 +54,24 @@ class GalleryController extends Controller
         /** @var array<int, UploadedFile> $photos */
         $photos = $request->file('photos');
 
-        foreach ($photos as $photo) {
-            GalleryPhoto::query()->create([
-                'file_path' => $photo->store('gallery', 'public'),
-            ]);
+        /** @var list<string> $storedPaths */
+        $storedPaths = [];
+
+        try {
+            DB::transaction(function () use ($photos, &$storedPaths): void {
+                foreach ($photos as $photo) {
+                    $filePath = $photo->store('gallery', 'public');
+                    $storedPaths[] = $filePath;
+
+                    GalleryPhoto::query()->create([
+                        'file_path' => $filePath,
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($storedPaths);
+
+            throw $exception;
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Photos uploaded.')]);

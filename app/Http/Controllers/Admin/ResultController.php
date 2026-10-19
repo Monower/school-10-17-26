@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class ResultController extends Controller
 {
@@ -61,13 +63,27 @@ class ResultController extends Controller
         $files = $request->file('files');
         $directory = 'results/'.Str::slug($validated['class_name']);
 
-        foreach ($files as $file) {
-            Result::query()->create([
-                'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'class_name' => $validated['class_name'],
-                'file_path' => $file->store($directory, 'public'),
-                'file_size' => $file->getSize(),
-            ]);
+        /** @var list<string> $storedPaths */
+        $storedPaths = [];
+
+        try {
+            DB::transaction(function () use ($files, $validated, $directory, &$storedPaths): void {
+                foreach ($files as $file) {
+                    $filePath = $file->store($directory, 'public');
+                    $storedPaths[] = $filePath;
+
+                    Result::query()->create([
+                        'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                        'class_name' => $validated['class_name'],
+                        'file_path' => $filePath,
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($storedPaths);
+
+            throw $exception;
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Result uploaded.')]);
@@ -84,6 +100,17 @@ class ResultController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'class_name' => ['required', 'string', Rule::in(Application::CLASS_NAMES)],
         ]);
+
+        if ($validated['class_name'] !== $result->class_name) {
+            $disk = Storage::disk('public');
+            $newPath = 'results/'.Str::slug($validated['class_name']).'/'.basename($result->file_path);
+
+            if ($disk->exists($result->file_path)) {
+                $disk->move($result->file_path, $newPath);
+
+                $validated['file_path'] = $newPath;
+            }
+        }
 
         $result->update($validated);
 
