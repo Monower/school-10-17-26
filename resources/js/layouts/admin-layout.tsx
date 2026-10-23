@@ -11,6 +11,8 @@ import {
     Megaphone,
     Menu,
     ShieldCheck,
+    UserRound,
+    Users,
     X,
     type LucideIcon,
 } from 'lucide-react';
@@ -21,7 +23,9 @@ import { home, logout } from '@/routes';
 import { index as dashboard } from '@/routes/admin';
 import { index as announcementsIndex } from '@/routes/admin/announcements';
 import { index as applicationsIndex } from '@/routes/admin/applications';
+import { index as facultyIndex } from '@/routes/admin/faculty';
 import { index as galleryIndex } from '@/routes/admin/gallery';
+import { index as leadershipIndex } from '@/routes/admin/leadership';
 import { index as noticesIndex } from '@/routes/admin/notices';
 import { index as resultsIndex } from '@/routes/admin/results';
 import { index as scholarshipsIndex } from '@/routes/admin/scholarships';
@@ -48,6 +52,8 @@ const navigation: AdminNavItem[] = [
         icon: Megaphone,
     },
     { label: 'Gallery', href: galleryIndex.url(), icon: ImageIcon },
+    { label: 'Leadership', href: leadershipIndex.url(), icon: Users },
+    { label: 'Faculty', href: facultyIndex.url(), icon: UserRound },
     { label: 'Results', href: resultsIndex.url(), icon: FileText },
     {
         label: 'Applications',

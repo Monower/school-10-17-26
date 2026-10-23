@@ -56,6 +56,8 @@ test('admins can browse the managed content lists', function (string $route, str
     ['admin.scholarships.index', 'admin/scholarships/index'],
     ['admin.announcements.index', 'admin/announcements/index'],
     ['admin.gallery.index', 'admin/gallery/index'],
+    ['admin.leadership.index', 'admin/leadership/index'],
+    ['admin.faculty.index', 'admin/faculty/index'],
     ['admin.results.index', 'admin/results/index'],
     ['admin.applications.index', 'admin/applications/index'],
 ]);

@@ -1,9 +1,7 @@
 import { Head } from '@inertiajs/react';
-import academic from '@/assets/director-academic.jpg';
-import chairman from '@/assets/director-chairman.jpg';
-import executive from '@/assets/director-executive.jpg';
 import { PageHeader } from '@/components/site/page-header';
 import { Bilingual } from '@/lib/language';
+import type { FacultyMember, LeadershipMember } from '@/types';
 
 type Person = {
     image: string;
@@ -12,61 +10,6 @@ type Person = {
     roleEn: string;
     roleBn: string;
 };
-
-const board: Person[] = [
-    {
-        image: chairman,
-        nameEn: 'Director’s name',
-        nameBn: 'পরিচালকের নাম',
-        roleEn: 'Chairman',
-        roleBn: 'চেয়ারম্যান',
-    },
-    {
-        image: academic,
-        nameEn: 'Director’s name',
-        nameBn: 'পরিচালকের নাম',
-        roleEn: 'Academic Director',
-        roleBn: 'একাডেমিক পরিচালক',
-    },
-    {
-        image: executive,
-        nameEn: 'Director’s name',
-        nameBn: 'পরিচালকের নাম',
-        roleEn: 'Executive Director',
-        roleBn: 'নির্বাহী পরিচালক',
-    },
-];
-
-const faculty: Person[] = [
-    {
-        image: academic,
-        nameEn: 'Teacher’s name',
-        nameBn: 'শিক্ষকের নাম',
-        roleEn: 'Senior Teacher, Mathematics',
-        roleBn: 'সিনিয়র শিক্ষক, গণিত',
-    },
-    {
-        image: executive,
-        nameEn: 'Teacher’s name',
-        nameBn: 'শিক্ষকের নাম',
-        roleEn: 'Teacher, English',
-        roleBn: 'শিক্ষক, ইংরেজি',
-    },
-    {
-        image: chairman,
-        nameEn: 'Teacher’s name',
-        nameBn: 'শিক্ষকের নাম',
-        roleEn: 'Teacher, Physics',
-        roleBn: 'শিক্ষক, পদার্থবিজ্ঞান',
-    },
-    {
-        image: academic,
-        nameEn: 'Teacher’s name',
-        nameBn: 'শিক্ষকের নাম',
-        roleEn: 'Teacher, Bangla',
-        roleBn: 'শিক্ষক, বাংলা',
-    },
-];
 
 function PeopleGrid({
     people,
@@ -117,7 +60,29 @@ function PeopleGrid({
     );
 }
 
-export default function About() {
+export default function About({
+    leaders,
+    faculty,
+}: {
+    leaders: LeadershipMember[];
+    faculty: FacultyMember[];
+}) {
+    const board: Person[] = leaders.map((leader) => ({
+        image: leader.image_url,
+        nameEn: leader.name_en,
+        nameBn: leader.name_bn,
+        roleEn: leader.role_en,
+        roleBn: leader.role_bn,
+    }));
+
+    const teachers: Person[] = faculty.map((member) => ({
+        image: member.image_url,
+        nameEn: member.name_en,
+        nameBn: member.name_bn,
+        roleEn: member.designation_en,
+        roleBn: member.designation_bn,
+    }));
+
     return (
         <>
             <Head title="About Us — Sunshine Educare" />
@@ -129,20 +94,24 @@ export default function About() {
                 introEn="Meet the leadership and teachers guiding our students in Bhairab, Kishoreganj."
                 introBn="ভৈরব, কিশোরগঞ্জে আমাদের শিক্ষার্থীদের পথ দেখানো নেতৃত্ব ও শিক্ষকমণ্ডলীর সঙ্গে পরিচিত হোন।"
             />
-            <PeopleGrid
-                people={board}
-                titleEn="Board of Directors"
-                titleBn="পরিচালনা পর্ষদ"
-                cols="lg:grid-cols-3"
-            />
-            <div className="bg-secondary">
+            {board.length > 0 && (
                 <PeopleGrid
-                    people={faculty}
-                    titleEn="Faculty Members"
-                    titleBn="শিক্ষকমণ্ডলী"
-                    cols="lg:grid-cols-4"
+                    people={board}
+                    titleEn="Board of Directors"
+                    titleBn="পরিচালনা পর্ষদ"
+                    cols="lg:grid-cols-3"
                 />
-            </div>
+            )}
+            {teachers.length > 0 && (
+                <div className="bg-secondary">
+                    <PeopleGrid
+                        people={teachers}
+                        titleEn="Faculty Members"
+                        titleBn="শিক্ষকমণ্ডলী"
+                        cols="lg:grid-cols-4"
+                    />
+                </div>
+            )}
         </>
     );
 }

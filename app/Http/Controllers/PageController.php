@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FacultyMember;
 use App\Models\GalleryPhoto;
+use App\Models\LeadershipMember;
 use App\Models\Notice;
 use App\Models\Result;
 use App\Models\Scholarship;
@@ -27,6 +29,7 @@ class PageController extends Controller
                 ->orderByDesc('id')
                 ->take(6)
                 ->get(),
+            'leaders' => LeadershipMember::query()->active()->ordered()->get(),
         ]);
     }
 
@@ -35,7 +38,10 @@ class PageController extends Controller
      */
     public function about(): Response
     {
-        return Inertia::render('site/about');
+        return Inertia::render('site/about', [
+            'leaders' => LeadershipMember::query()->active()->ordered()->get(),
+            'faculty' => FacultyMember::query()->active()->ordered()->get(),
+        ]);
     }
 
     /**

@@ -2,7 +2,9 @@
 
 use App\Models\Announcement;
 use App\Models\Application;
+use App\Models\FacultyMember;
 use App\Models\GalleryPhoto;
+use App\Models\LeadershipMember;
 use App\Models\Notice;
 use App\Models\Result;
 use App\Models\Scholarship;
@@ -271,4 +273,177 @@ test('an admin can edit an announcement message', function () {
     expect($announcement->text_en)->toBe('New text')
         ->and($announcement->text_bn)->toBe('নতুন বার্তা')
         ->and($announcement->active)->toBeFalse();
+});
+
+test('an admin can add a leadership member', function () {
+    Storage::fake('public');
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.leadership.store'), [
+            'name_en' => 'Md. Rahim Uddin',
+            'name_bn' => 'মো. রহিম উদ্দিন',
+            'role_en' => 'Chairman',
+            'role_bn' => 'চেয়ারম্যান',
+            'message_en' => 'Welcome to our school.',
+            'image' => UploadedFile::fake()->image('chairman.jpg', 400, 500),
+            'sort_order' => 1,
+            'active' => true,
+        ])
+        ->assertRedirect();
+
+    $member = LeadershipMember::query()->sole();
+
+    expect($member->name_en)->toBe('Md. Rahim Uddin')
+        ->and($member->role_bn)->toBe('চেয়ারম্যান')
+        ->and($member->active)->toBeTrue();
+
+    Storage::disk('public')->assertExists($member->image_path);
+});
+
+test('adding a leadership member requires both language names and a portrait', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.leadership.store'), [
+            'name_en' => 'Only English',
+            'role_en' => 'Chairman',
+            'role_bn' => 'চেয়ারম্যান',
+        ])
+        ->assertSessionHasErrors(['name_bn', 'image']);
+
+    $this->assertDatabaseCount('leadership_members', 0);
+});
+
+test('updating a leadership member replaces the stored portrait', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('leadership/old.jpg', 'old image');
+    $member = LeadershipMember::factory()->create([
+        'image_path' => 'leadership/old.jpg',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.leadership.update', $member), [
+            'name_en' => 'Updated name',
+            'name_bn' => 'হালনাগাদ নাম',
+            'role_en' => 'Chairman',
+            'role_bn' => 'চেয়ারম্যান',
+            'image' => UploadedFile::fake()->image('new.jpg', 400, 500),
+        ])
+        ->assertRedirect();
+
+    $member->refresh();
+
+    expect($member->name_en)->toBe('Updated name');
+
+    Storage::disk('public')->assertMissing('leadership/old.jpg');
+    Storage::disk('public')->assertExists($member->image_path);
+});
+
+test('an admin can hide a leadership member', function () {
+    $member = LeadershipMember::factory()->create(['active' => true]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.leadership.update', $member), ['active' => false])
+        ->assertRedirect();
+
+    expect($member->fresh()->active)->toBeFalse();
+});
+
+test('deleting a leadership member removes their stored portrait', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('leadership/chairman.jpg', 'image content');
+    $member = LeadershipMember::factory()->create([
+        'image_path' => 'leadership/chairman.jpg',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->delete(route('admin.leadership.destroy', $member))
+        ->assertRedirect();
+
+    $this->assertDatabaseCount('leadership_members', 0);
+    Storage::disk('public')->assertMissing('leadership/chairman.jpg');
+});
+
+test('an admin can add a faculty member', function () {
+    Storage::fake('public');
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.faculty.store'), [
+            'name_en' => 'Md. Karim Uddin',
+            'name_bn' => 'মো. করিম উদ্দিন',
+            'designation_en' => 'Senior Teacher, Mathematics',
+            'designation_bn' => 'সিনিয়র শিক্ষক, গণিত',
+            'image' => UploadedFile::fake()->image('teacher.jpg', 400, 500),
+            'sort_order' => 1,
+            'active' => true,
+        ])
+        ->assertRedirect();
+
+    $member = FacultyMember::query()->sole();
+
+    expect($member->name_en)->toBe('Md. Karim Uddin')
+        ->and($member->designation_bn)->toBe('সিনিয়র শিক্ষক, গণিত')
+        ->and($member->active)->toBeTrue();
+
+    Storage::disk('public')->assertExists($member->image_path);
+});
+
+test('adding a faculty member requires both language names, designations and a portrait', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.faculty.store'), [
+            'name_en' => 'Only English',
+            'designation_en' => 'Teacher, English',
+        ])
+        ->assertSessionHasErrors(['name_bn', 'designation_bn', 'image']);
+
+    $this->assertDatabaseCount('faculty_members', 0);
+});
+
+test('updating a faculty member replaces the stored portrait', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('faculty/old.jpg', 'old image');
+    $member = FacultyMember::factory()->create([
+        'image_path' => 'faculty/old.jpg',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.faculty.update', $member), [
+            'name_en' => 'Updated name',
+            'name_bn' => 'হালনাগাদ নাম',
+            'designation_en' => 'Teacher, Physics',
+            'designation_bn' => 'শিক্ষক, পদার্থবিজ্ঞান',
+            'image' => UploadedFile::fake()->image('new.jpg', 400, 500),
+        ])
+        ->assertRedirect();
+
+    $member->refresh();
+
+    expect($member->name_en)->toBe('Updated name')
+        ->and($member->designation_en)->toBe('Teacher, Physics');
+
+    Storage::disk('public')->assertMissing('faculty/old.jpg');
+    Storage::disk('public')->assertExists($member->image_path);
+});
+
+test('an admin can hide a faculty member', function () {
+    $member = FacultyMember::factory()->create(['active' => true]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.faculty.update', $member), ['active' => false])
+        ->assertRedirect();
+
+    expect($member->fresh()->active)->toBeFalse();
+});
+
+test('deleting a faculty member removes their stored portrait', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('faculty/teacher.jpg', 'image content');
+    $member = FacultyMember::factory()->create([
+        'image_path' => 'faculty/teacher.jpg',
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->delete(route('admin.faculty.destroy', $member))
+        ->assertRedirect();
+
+    $this->assertDatabaseCount('faculty_members', 0);
+    Storage::disk('public')->assertMissing('faculty/teacher.jpg');
 });

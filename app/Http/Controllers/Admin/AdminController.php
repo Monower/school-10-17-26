@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\Application;
+use App\Models\FacultyMember;
 use App\Models\GalleryPhoto;
+use App\Models\LeadershipMember;
 use App\Models\Notice;
 use App\Models\Result;
 use App\Models\Scholarship;
@@ -26,6 +28,8 @@ class AdminController extends Controller
                 'announcements' => Announcement::query()->count(),
                 'activeAnnouncements' => Announcement::query()->where('active', true)->count(),
                 'photos' => GalleryPhoto::query()->count(),
+                'leaders' => LeadershipMember::query()->count(),
+                'faculty' => FacultyMember::query()->count(),
                 'results' => Result::query()->count(),
                 'applications' => Application::query()->count(),
             ],

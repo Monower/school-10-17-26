@@ -38,6 +38,30 @@ export type GalleryPhoto = {
     url: string;
 };
 
+export type LeadershipMember = {
+    id: number;
+    name_en: string;
+    name_bn: string;
+    role_en: string;
+    role_bn: string;
+    message_en: string | null;
+    message_bn: string | null;
+    image_url: string;
+    sort_order: number;
+    active: boolean;
+};
+
+export type FacultyMember = {
+    id: number;
+    name_en: string;
+    name_bn: string;
+    designation_en: string;
+    designation_bn: string;
+    image_url: string;
+    sort_order: number;
+    active: boolean;
+};
+
 export type Application = {
     id: number;
     student_name: string;
@@ -64,6 +88,8 @@ export type AdminStats = {
     announcements: number;
     activeAnnouncements: number;
     photos: number;
+    leaders: number;
+    faculty: number;
     results: number;
     applications: number;
 };

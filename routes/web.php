@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\ApplicationController;
+use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\LeadershipController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\ScholarshipController;
@@ -36,6 +38,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('notices', NoticeController::class)->except(['show', 'create', 'edit']);
     Route::resource('scholarships', ScholarshipController::class)->except(['show', 'create', 'edit']);
     Route::resource('announcements', AnnouncementController::class)->except(['show', 'create', 'edit']);
+
+    Route::resource('leadership', LeadershipController::class)
+        ->except(['show', 'create', 'edit'])
+        ->parameters(['leadership' => 'member']);
+
+    Route::resource('faculty', FacultyController::class)
+        ->except(['show', 'create', 'edit'])
+        ->parameters(['faculty' => 'member']);
 
     Route::resource('gallery', GalleryController::class)
         ->except(['show', 'create', 'edit'])

@@ -24,7 +24,7 @@ import { Bilingual, useLanguage } from '@/lib/language';
 import { about, notice } from '@/routes';
 import { apply, scholarships } from '@/routes/admission';
 import { bhairabBazar, kamalpur } from '@/routes/contacts';
-import type { GalleryPhoto, Notice } from '@/types';
+import type { GalleryPhoto, LeadershipMember, Notice } from '@/types';
 
 const slides = [
     {
@@ -117,9 +117,11 @@ const admissionCards = [
 export function HomePage({
     notices,
     photos,
+    leaders,
 }: {
     notices: Notice[];
     photos: GalleryPhoto[];
+    leaders: LeadershipMember[];
 }) {
     const [slide, setSlide] = useState(0);
     const { isBangla } = useLanguage();
@@ -225,7 +227,7 @@ export function HomePage({
                 </div>
             </section>
 
-            <DirectorsCarousel />
+            <DirectorsCarousel leaders={leaders} />
 
             <section className="bg-background py-18 sm:py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

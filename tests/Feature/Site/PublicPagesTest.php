@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Announcement;
+use App\Models\FacultyMember;
 use App\Models\GalleryPhoto;
+use App\Models\LeadershipMember;
 use App\Models\Notice;
 use App\Models\Result;
 use App\Models\Scholarship;
@@ -88,5 +90,45 @@ test('only active announcements are shared with the page', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->has('announcements', 1)
             ->where('announcements.0.text_en', 'Active message')
+        );
+});
+
+test('the home page exposes active leadership members in display order', function () {
+    LeadershipMember::factory()->create(['name_en' => 'Second', 'sort_order' => 2]);
+    LeadershipMember::factory()->create(['name_en' => 'First', 'sort_order' => 1]);
+    LeadershipMember::factory()->inactive()->create(['name_en' => 'Hidden']);
+
+    $this->get(route('home'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('leaders', 2)
+            ->where('leaders.0.name_en', 'First')
+            ->where('leaders.1.name_en', 'Second')
+            ->has('leaders.0.image_url')
+            ->missing('leaders.0.image_path')
+        );
+});
+
+test('the about page exposes leadership members', function () {
+    LeadershipMember::factory()->create(['name_en' => 'Chairman']);
+
+    $this->get(route('about'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('leaders', 1)
+            ->where('leaders.0.name_en', 'Chairman')
+        );
+});
+
+test('the about page exposes active faculty members in display order', function () {
+    FacultyMember::factory()->create(['name_en' => 'Second teacher', 'sort_order' => 2]);
+    FacultyMember::factory()->create(['name_en' => 'First teacher', 'sort_order' => 1]);
+    FacultyMember::factory()->inactive()->create(['name_en' => 'Hidden teacher']);
+
+    $this->get(route('about'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('faculty', 2)
+            ->where('faculty.0.name_en', 'First teacher')
+            ->where('faculty.1.name_en', 'Second teacher')
+            ->has('faculty.0.image_url')
+            ->missing('faculty.0.image_path')
         );
 });

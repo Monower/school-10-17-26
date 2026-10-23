@@ -7,12 +7,16 @@ import {
     Image as ImageIcon,
     Megaphone,
     type LucideIcon,
+    UserRound,
+    Users,
 } from 'lucide-react';
 import { EmptyState } from '@/components/admin/empty-state';
 import { PageHeader } from '@/components/admin/page-header';
 import { index as announcementsIndex } from '@/routes/admin/announcements';
 import { index as applicationsIndex } from '@/routes/admin/applications';
+import { index as facultyIndex } from '@/routes/admin/faculty';
 import { index as galleryIndex } from '@/routes/admin/gallery';
+import { index as leadershipIndex } from '@/routes/admin/leadership';
 import { index as noticesIndex } from '@/routes/admin/notices';
 import { index as resultsIndex } from '@/routes/admin/results';
 import { index as scholarshipsIndex } from '@/routes/admin/scholarships';
@@ -97,6 +101,18 @@ export default function AdminDashboard({
             value: stats.photos,
             icon: ImageIcon,
             href: galleryIndex.url(),
+        },
+        {
+            label: 'Leadership',
+            value: stats.leaders,
+            icon: Users,
+            href: leadershipIndex.url(),
+        },
+        {
+            label: 'Faculty',
+            value: stats.faculty,
+            icon: UserRound,
+            href: facultyIndex.url(),
         },
         {
             label: 'Result files',
