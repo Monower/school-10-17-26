@@ -3,7 +3,8 @@ import { Award, Megaphone } from 'lucide-react';
 import { PageHeader } from '@/components/site/page-header';
 import { Button } from '@/components/ui/button';
 import { Bilingual } from '@/lib/language';
-import { apply } from '@/routes/admission';
+import { apply, scholarships as scholarshipsRoute } from '@/routes/admission';
+import { show as scholarshipShow } from '@/routes/admission/scholarships';
 import type { Scholarship } from '@/types';
 
 export default function ScholarshipsPage({
@@ -42,33 +43,42 @@ export default function ScholarshipsPage({
                         {scholarships.map((scholarship) => (
                             <article
                                 key={scholarship.id}
-                                className="flex gap-4 rounded-md border border-l-4 border-border border-l-sun bg-card p-5"
+                                className="border-l-4 rounded-md border border-l-sun"
                             >
-                                <Award className="mt-1 size-6 shrink-0 text-primary" />
-                                <div>
-                                    <time className="text-xs font-bold text-muted-foreground">
-                                        {scholarship.announce_date}
-                                    </time>
-                                    <h3 className="mt-1 text-lg font-bold">
-                                        <Bilingual
-                                            en={scholarship.title_en}
-                                            bn={scholarship.title_bn}
-                                        />
-                                    </h3>
-                                    {(scholarship.body_en ||
-                                        scholarship.body_bn) && (
-                                        <p className="mt-1 text-sm text-muted-foreground">
+                                <Link
+                                    href={scholarshipShow.url(scholarship.id)}
+                                    target="_blank"
+                                    className="flex gap-4 rounded-[inherit] bg-card p-5 transition-colors hover:bg-muted/50"
+                                >
+                                    <Award className="mt-1 size-6 shrink-0 text-primary" />
+                                    <div>
+                                        <time className="text-xs font-bold text-muted-foreground">
+                                            {scholarship.announce_date}
+                                        </time>
+                                        <h3 className="mt-1 text-lg font-bold">
                                             <Bilingual
-                                                en={scholarship.body_en ?? ''}
-                                                bn={
-                                                    scholarship.body_bn ??
-                                                    scholarship.body_en ??
-                                                    ''
-                                                }
+                                                en={scholarship.title_en}
+                                                bn={scholarship.title_bn}
                                             />
-                                        </p>
-                                    )}
-                                </div>
+                                        </h3>
+                                        {(scholarship.body_en ||
+                                            scholarship.body_bn) && (
+                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                <Bilingual
+                                                    en={
+                                                        scholarship.body_en ??
+                                                        ''
+                                                    }
+                                                    bn={
+                                                        scholarship.body_bn ??
+                                                        scholarship.body_en ??
+                                                        ''
+                                                    }
+                                                />
+                                            </p>
+                                        )}
+                                    </div>
+                                </Link>
                             </article>
                         ))}
                     </div>

@@ -58,6 +58,16 @@ class PageController extends Controller
     }
 
     /**
+     * Show a single notice.
+     */
+    public function showNotice(Notice $notice): Response
+    {
+        return Inertia::render('site/notice-show', [
+            'notice' => $notice,
+        ]);
+    }
+
+    /**
      * Show the gallery page.
      */
     public function gallery(): Response
@@ -93,6 +103,16 @@ class PageController extends Controller
                 ->orderByDesc('announce_date')
                 ->orderByDesc('id')
                 ->get(),
+        ]);
+    }
+
+    /**
+     * Show a single scholarship announcement.
+     */
+    public function showScholarship(Scholarship $scholarship): Response
+    {
+        return Inertia::render('site/admission/scholarship-show', [
+            'scholarship' => $scholarship,
         ]);
     }
 

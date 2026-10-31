@@ -1,8 +1,9 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { PageHeader } from '@/components/site/page-header';
 import { Bilingual } from '@/lib/language';
+import { show as noticeShow } from '@/routes/notice';
 import type { Notice } from '@/types';
 
 export default function NoticePage({ notices }: { notices: Notice[] }) {
@@ -57,38 +58,43 @@ export default function NoticePage({ notices }: { notices: Notice[] }) {
                         </li>
                     )}
                     {list.map((notice) => (
-                        <li
-                            key={notice.id}
-                            className="flex items-start gap-4 p-5"
-                        >
-                            <FileText className="mt-0.5 size-5 shrink-0 text-brand-red" />
-                            <div className="flex-1">
-                                <p className="font-semibold">
-                                    <Bilingual
-                                        en={notice.title_en}
-                                        bn={notice.title_bn}
-                                    />
-                                </p>
-                                {(notice.body_en || notice.body_bn) && (
-                                    <p className="mt-1 text-sm text-muted-foreground">
-                                        <Bilingual
-                                            en={
-                                                notice.body_en ??
-                                                notice.body_bn ??
-                                                ''
-                                            }
-                                            bn={
-                                                notice.body_bn ??
-                                                notice.body_en ??
-                                                ''
-                                            }
-                                        />
-                                    </p>
-                                )}
-                            </div>
-                            <time className="text-xs font-bold text-muted-foreground">
-                                {notice.notice_date}
-                            </time>
+                        <li key={notice.id}>
+                            <Link
+                                href={noticeShow.url(notice.id)}
+                                target="_blank"
+                                className="block p-5 transition-colors hover:bg-muted/50"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <FileText className="mt-0.5 size-5 shrink-0 text-brand-red" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold">
+                                            <Bilingual
+                                                en={notice.title_en}
+                                                bn={notice.title_bn}
+                                            />
+                                        </p>
+                                        {(notice.body_en || notice.body_bn) && (
+                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                <Bilingual
+                                                    en={
+                                                        notice.body_en ??
+                                                        notice.body_bn ??
+                                                        ''
+                                                    }
+                                                    bn={
+                                                        notice.body_bn ??
+                                                        notice.body_en ??
+                                                        ''
+                                                    }
+                                                />
+                                            </p>
+                                        )}
+                                    </div>
+                                    <time className="text-xs font-bold text-muted-foreground">
+                                        {notice.notice_date}
+                                    </time>
+                                </div>
+                            </Link>
                         </li>
                     ))}
                 </ul>

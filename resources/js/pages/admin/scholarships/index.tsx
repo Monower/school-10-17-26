@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { GraduationCap, Pencil, Plus } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Eye, GraduationCap, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteButton } from '@/components/admin/delete-button';
 import { EmptyState } from '@/components/admin/empty-state';
@@ -11,6 +11,7 @@ import { SearchInput } from '@/components/admin/search-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { show as scholarshipShow } from '@/routes/admission/scholarships';
 import { destroy, index, store, update } from '@/routes/admin/scholarships';
 import type { Filters, Paginated, Scholarship } from '@/types';
 
@@ -167,12 +168,82 @@ function ScholarshipFormDialog({
     );
 }
 
+function ScholarshipViewDialog({
+    scholarship,
+    open,
+    onOpenChange,
+}: {
+    scholarship: Scholarship | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
+    if (!scholarship) {
+        return null;
+    }
+
+    return (
+        <ResourceDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={scholarship.title_en}
+            description={`Announced on ${scholarship.announce_date}`}
+        >
+            <div className="space-y-4">
+                <div>
+                    <p className="text-xs font-bold text-muted-foreground">
+                        Title (Bangla)
+                    </p>
+                    <p className="mt-1 text-sm font-semibold">
+                        {scholarship.title_bn}
+                    </p>
+                </div>
+
+                {scholarship.body_en && (
+                    <div>
+                        <p className="text-xs font-bold text-muted-foreground">
+                            Details (English)
+                        </p>
+                        <p className="mt-1 text-sm whitespace-pre-line">
+                            {scholarship.body_en}
+                        </p>
+                    </div>
+                )}
+
+                {scholarship.body_bn && (
+                    <div>
+                        <p className="text-xs font-bold text-muted-foreground">
+                            Details (Bangla)
+                        </p>
+                        <p className="mt-1 text-sm whitespace-pre-line">
+                            {scholarship.body_bn}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+                <Button asChild variant="outline">
+                    <Link
+                        href={scholarshipShow.url(scholarship.id)}
+                        target="_blank"
+                    >
+                        <Eye className="size-4" />
+                        Open on website
+                    </Link>
+                </Button>
+                <Button onClick={() => onOpenChange(false)}>Close</Button>
+            </div>
+        </ResourceDialog>
+    );
+}
+
 export default function ScholarshipsIndex({
     scholarships,
     filters,
 }: ScholarshipsProps) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<Scholarship | null>(null);
+    const [viewing, setViewing] = useState<Scholarship | null>(null);
 
     const openCreate = () => {
         setEditing(null);
@@ -266,6 +337,18 @@ export default function ScholarshipsIndex({
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
+                                                        aria-label="View scholarship"
+                                                        onClick={() =>
+                                                            setViewing(
+                                                                scholarship,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Eye className="size-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
                                                         aria-label="Edit scholarship"
                                                         onClick={() =>
                                                             openEdit(
@@ -300,6 +383,16 @@ export default function ScholarshipsIndex({
                 scholarship={editing}
                 open={open}
                 onOpenChange={setOpen}
+            />
+
+            <ScholarshipViewDialog
+                scholarship={viewing}
+                open={viewing !== null}
+                onOpenChange={(next) => {
+                    if (!next) {
+                        setViewing(null);
+                    }
+                }}
             />
         </>
     );

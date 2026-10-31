@@ -110,11 +110,7 @@ export function PhotoGallery({ photos }: { photos: GalleryPhoto[] }) {
                                     key={item.id}
                                     type="button"
                                     onClick={() => setSelected(index)}
-                                    className={`group relative overflow-hidden rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
-                                        index === 0
-                                            ? 'sm:row-span-2 sm:auto-rows-auto'
-                                            : ''
-                                    }`}
+                                    className="group relative overflow-hidden rounded-md text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                     aria-label={
                                         label ??
                                         `${isBangla ? 'গ্যালারি ছবি' : 'Gallery photo'} ${index + 1}`

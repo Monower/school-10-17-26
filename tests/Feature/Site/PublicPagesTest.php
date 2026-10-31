@@ -50,6 +50,52 @@ test('the notices page lists the latest notices first', function () {
         );
 });
 
+test('a single notice page renders the notice details', function () {
+    $notice = Notice::factory()->create([
+        'title_en' => 'Exam schedule',
+        'title_bn' => 'পরীক্ষার সময়সূচি',
+        'body_en' => 'Details',
+        'notice_date' => '2026-09-01',
+    ]);
+
+    $this->get(route('notice.show', $notice))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('site/notice-show')
+            ->where('notice.title_en', 'Exam schedule')
+            ->where('notice.title_bn', 'পরীক্ষার সময়সূচি')
+            ->where('notice.body_en', 'Details')
+            ->has('notice.notice_date')
+        );
+});
+
+test('a missing notice returns a 404', function () {
+    $this->get(route('notice.show', 9999))->assertNotFound();
+});
+
+test('a single scholarship page renders the scholarship details', function () {
+    $scholarship = Scholarship::factory()->create([
+        'title_en' => 'Merit scholarship',
+        'title_bn' => 'মেধা বৃত্তি',
+        'body_en' => 'Eligibility details',
+        'announce_date' => '2026-09-01',
+    ]);
+
+    $this->get(route('admission.scholarships.show', $scholarship))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('site/admission/scholarship-show')
+            ->where('scholarship.title_en', 'Merit scholarship')
+            ->where('scholarship.title_bn', 'মেধা বৃত্তি')
+            ->where('scholarship.body_en', 'Eligibility details')
+            ->has('scholarship.announce_date')
+        );
+});
+
+test('a missing scholarship returns a 404', function () {
+    $this->get(route('admission.scholarships.show', 9999))->assertNotFound();
+});
+
 test('the results page exposes a public download url without the storage path', function () {
     Result::factory()->create(['title' => 'Midterm', 'file_path' => 'results/class-5/midterm.pdf']);
 

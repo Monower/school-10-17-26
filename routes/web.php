@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('about', [PageController::class, 'about'])->name('about');
 Route::get('notice', [PageController::class, 'notices'])->name('notice');
+Route::get('notice/{notice}', [PageController::class, 'showNotice'])
+    ->name('notice.show');
 Route::get('gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('result', [PageController::class, 'results'])->name('result');
 
@@ -24,6 +26,8 @@ Route::post('admission/apply', [AdmissionApplicationController::class, 'store'])
     ->middleware('throttle:6,1')
     ->name('admission.apply.store');
 Route::get('admission/scholarships', [PageController::class, 'scholarships'])->name('admission.scholarships');
+Route::get('admission/scholarships/{scholarship}', [PageController::class, 'showScholarship'])
+    ->name('admission.scholarships.show');
 
 Route::get('contacts/bhairab-bazar', [PageController::class, 'bhairabBazar'])->name('contacts.bhairab-bazar');
 Route::get('contacts/kamalpur', [PageController::class, 'kamalpur'])->name('contacts.kamalpur');

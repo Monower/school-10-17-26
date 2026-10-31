@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Bell, Pencil, Plus } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Bell, Eye, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteButton } from '@/components/admin/delete-button';
 import { EmptyState } from '@/components/admin/empty-state';
@@ -11,6 +11,7 @@ import { SearchInput } from '@/components/admin/search-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { show as noticeShow } from '@/routes/notice';
 import { destroy, index, store, update } from '@/routes/admin/notices';
 import type { Filters, Notice, Paginated } from '@/types';
 
@@ -167,9 +168,76 @@ function NoticeFormDialog({
     );
 }
 
+function NoticeViewDialog({
+    notice,
+    open,
+    onOpenChange,
+}: {
+    notice: Notice | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
+    if (!notice) {
+        return null;
+    }
+
+    return (
+        <ResourceDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={notice.title_en}
+            description={`Published on ${notice.notice_date}`}
+        >
+            <div className="space-y-4">
+                <div>
+                    <p className="text-xs font-bold text-muted-foreground">
+                        Title (Bangla)
+                    </p>
+                    <p className="mt-1 text-sm font-semibold">
+                        {notice.title_bn}
+                    </p>
+                </div>
+
+                {notice.body_en && (
+                    <div>
+                        <p className="text-xs font-bold text-muted-foreground">
+                            Details (English)
+                        </p>
+                        <p className="mt-1 text-sm whitespace-pre-line">
+                            {notice.body_en}
+                        </p>
+                    </div>
+                )}
+
+                {notice.body_bn && (
+                    <div>
+                        <p className="text-xs font-bold text-muted-foreground">
+                            Details (Bangla)
+                        </p>
+                        <p className="mt-1 text-sm whitespace-pre-line">
+                            {notice.body_bn}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+                <Button asChild variant="outline">
+                    <Link href={noticeShow.url(notice.id)} target="_blank">
+                        <Eye className="size-4" />
+                        Open on website
+                    </Link>
+                </Button>
+                <Button onClick={() => onOpenChange(false)}>Close</Button>
+            </div>
+        </ResourceDialog>
+    );
+}
+
 export default function NoticesIndex({ notices, filters }: NoticesProps) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<Notice | null>(null);
+    const [viewing, setViewing] = useState<Notice | null>(null);
 
     const openCreate = () => {
         setEditing(null);
@@ -263,6 +331,16 @@ export default function NoticesIndex({ notices, filters }: NoticesProps) {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
+                                                        aria-label="View notice"
+                                                        onClick={() =>
+                                                            setViewing(notice)
+                                                        }
+                                                    >
+                                                        <Eye className="size-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
                                                         aria-label="Edit notice"
                                                         onClick={() =>
                                                             openEdit(notice)
@@ -295,6 +373,16 @@ export default function NoticesIndex({ notices, filters }: NoticesProps) {
                 notice={editing}
                 open={open}
                 onOpenChange={setOpen}
+            />
+
+            <NoticeViewDialog
+                notice={viewing}
+                open={viewing !== null}
+                onOpenChange={(next) => {
+                    if (!next) {
+                        setViewing(null);
+                    }
+                }}
             />
         </>
     );
