@@ -59,7 +59,10 @@ function FacultyFormDialog({
         };
 
         if (member) {
-            form.patch(update.url(member.id), options);
+            // PHP does not parse multipart bodies on PATCH requests, so spoof
+            // the method while uploading the portrait via POST.
+            form.transform((data) => ({ ...data, _method: 'patch' }));
+            form.post(update.url(member.id), options);
         } else {
             form.post(store.url(), {
                 ...options,
